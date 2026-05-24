@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login - FinSight</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"on-error": "#ffffff", "tertiary-container": "#b65e00", "tertiary-fixed": "#ffdcc5", error: "#ba1a1a", "on-primary-fixed-variant": "#3d24c5", "inverse-primary": "#c5c0ff", "on-primary": "#ffffff", "on-primary-fixed": "#150067", "surface-container-lowest": "#ffffff", tertiary: "#914a00", "secondary-container": "#bdb6ff", "on-surface": "#1b1b23", "surface-container-high": "#eae6f3", "on-primary-container": "#fffdff", "on-background": "#1b1b23", secondary: "#5c5697", "on-secondary-container": "#4b4585", "secondary-fixed": "#e4dfff", "primary-fixed": "#e4dfff", "surface-container-low": "#f6f2fe", "surface-container-highest": "#e4e1ed", "surface-container": "#f0ecf9", "on-secondary": "#ffffff", primary: "#5442db", "surface-dim": "#dcd8e5", "secondary-fixed-dim": "#c6bfff", "inverse-surface": "#302f39", "on-tertiary-fixed": "#301400", "surface-variant": "#e4e1ed", "tertiary-fixed-dim": "#ffb782", "surface-tint": "#5544dc", "on-secondary-fixed": "#180f50", "inverse-on-surface": "#f3effc", "primary-fixed-dim": "#c5c0ff", "on-tertiary": "#ffffff", "on-surface-variant": "#474555", "on-secondary-fixed-variant": "#443e7e", "on-tertiary-fixed-variant": "#703800", "outline-variant": "#c8c4d7", surface: "#fcf8ff", background: "#fcf8ff", "surface-bright": "#fcf8ff", "primary-container": "#6d5ef5", "error-container": "#ffdad6", outline: "#787586", "on-tertiary-container": "#fffeff", "on-error-container": "#93000a"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {xs: "8px", xl: "64px", lg: "40px", "container-max": "1280px", md: "24px", base: "4px", gutter: "24px", sm: "16px"}, fontFamily: {"headline-md": ["Hanken Grotesk"], "body-lg": ["Inter"], "body-md": ["Inter"], "headline-lg-mobile": ["Hanken Grotesk"], "label-sm": ["Inter"], "label-xs": ["Inter"], "headline-lg": ["Hanken Grotesk"], display: ["Hanken Grotesk"], headline: ["Hanken Grotesk"], body: ["Inter"], label: ["Inter"]}, fontSize: {"headline-md": ["20px", {lineHeight: "28px", fontWeight: "600"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "body-md": ["16px", {lineHeight: "24px", fontWeight: "400"}], "headline-lg-mobile": ["24px", {lineHeight: "32px", fontWeight: "600"}], "label-sm": ["14px", {lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "500"}], "label-xs": ["12px", {lineHeight: "16px", fontWeight: "600"}], "headline-lg": ["32px", {lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "600"}], display: ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700"}]}}}};</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md">
+<div class="flex min-h-screen">
+<!-- Left Side: Illustration / Brand -->
+<div class="hidden lg:flex w-1/2 bg-surface-container relative overflow-hidden flex-col justify-between p-lg">
+<!-- Decorative Elements -->
+<div class="absolute inset-0 z-0">
+<img alt="FinSight Abstract Intelligence" class="w-full h-full object-cover opacity-60 mix-blend-luminosity" data-alt="A clean, futuristic AI-finance conceptual illustration. Abstract flowing lines and soft geometric shapes representing data flow and neural networks. The color palette features light mode aesthetics with pristine whites, soft silvers, and subtle glowing hints of electric blue and violet. The overall mood is premium, intelligent, and highly sophisticated." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9_nyMkZRFrTbcGa9MtZZkTHD3SUJt2utSEFt6Xhf49OwaTxX9Stv9UycUSkukj13LkdoyHXYSmTYRTGiUt2UD-qS5-kJoe2HbHIo3ODMKZ2UUFp4V9CiJcWN5-Ey73QQfFD6PcOQIxHIi9Cxv3S7hMIDUcMp7QCy-ROkKlDEsWEoCWZ-0pmDS7RNZksGba28XhPvu_sIk8M5kBWCVMyNLlMgeYfUwjRBFn3eK0552VMR69HDByByW2eTkhC31DTrSa7wp4c9_Cw"/>
+<div class="absolute inset-0 bg-gradient-to-b from-surface-container/20 to-surface-container/90 backdrop-blur-[2px]"></div>
+</div>
+<!-- Brand Header -->
+<div class="relative z-10">
+<h1 class="font-display text-headline-lg font-bold text-primary flex items-center gap-xs">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">insights</span>
+                    FinSight
+                </h1>
+</div>
+<!-- Value Proposition -->
+<div class="relative z-10 max-w-md">
+<div class="bg-surface/60 backdrop-blur-md border border-outline-variant/20 p-md rounded-xl shadow-[0px_12px_32px_rgba(15,23,42,0.08)]">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Quiet Intelligence for Modern Finance</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Experience the next generation of financial clarity. Minimalist design meets powerful AI insights, helping you navigate your wealth with precision and ease.
+                    </p>
+</div>
+</div>
+</div>
+<!-- Right Side: Login Form -->
+<div class="w-full lg:w-1/2 flex items-center justify-center p-sm md:p-lg bg-surface relative">
+<!-- Mobile Brand Header (Visible only on small screens) -->
+<div class="absolute top-md left-md lg:hidden">
+<h1 class="font-display text-headline-lg-mobile font-bold text-primary flex items-center gap-xs">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">insights</span>
+                    FinSight
+                </h1>
+</div>
+<div class="w-full max-w-md">
+<div class="text-center mb-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Welcome back</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Experience the next generation of financial clarity. Minimalist design meets powerful AI insights, helping you navigate your wealth with precision and ease.
+                    </p>
+</div>
+<form class="space-y-md">
+<!-- Email Input -->
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-base" for="email">Email address</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">mail</span>
+</div>
+<input class="w-full pl-xl pr-sm py-xs bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300" id="email" name="email" placeholder="name@company.com" required="" type="email"/>
+</div>
+</div>
+<!-- Password Input -->
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-base" for="password">Password</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">lock</span>
+</div>
+<input class="w-full pl-xl pr-xl py-xs bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-sm flex items-center text-outline hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Remember Me & Forgot Password -->
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<input class="h-4 w-4 text-primary focus:ring-primary border-outline-variant rounded cursor-pointer" id="remember-me" name="remember-me" type="checkbox"/>
+<label class="ml-xs block font-label-sm text-label-sm text-on-surface-variant cursor-pointer" for="remember-me">
+                                Remember me
+                            </label>
+</div>
+<div class="text-sm">
+<a class="font-label-sm text-label-sm text-primary hover:text-primary-container transition-colors" href="#">Forgot password?</a>
+</div>
+</div>
+<!-- Sign In Button -->
+<button class="w-full flex justify-center py-xs px-md border border-transparent rounded-lg shadow-sm font-label-sm text-label-sm text-on-primary bg-primary hover:bg-primary-container focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary hover:-translate-y-[1px] transition-all duration-300" type="submit">
+                        Sign in
+                    </button>
+</form>
+<div class="mt-lg">
+<div class="relative">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant/30"></div>
+</div>
+<div class="relative flex justify-center text-sm">
+<span class="px-sm bg-surface font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Or continue with</span>
+</div>
+</div>
+<div class="mt-md">
+<button class="w-full flex justify-center items-center gap-sm py-xs px-md border border-outline-variant rounded-lg shadow-sm bg-surface-container-lowest font-label-sm text-label-sm text-on-surface hover:bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300" type="button">
+<svg aria-hidden="true" class="h-5 w-5" viewbox="0 0 24 24">
+<path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335"></path>
+<path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4"></path>
+<path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05"></path>
+<path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26537 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853"></path>
+</svg>
+                            Sign in with Google
+                        </button>
+</div>
+</div>
+<p class="mt-lg text-center font-body-md text-label-sm text-on-surface-variant">
+                        Experience the next generation of financial clarity. Minimalist design meets powerful AI insights, helping you navigate your wealth with precision and ease.
+                    </p>
+</div>
+</div>
+</div>
+</body></html>
