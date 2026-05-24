@@ -64,3 +64,49 @@
   background: white;
   border-radius: calc(1.25rem - 1px);
 }
+
+/* ── Risk to Reward Ratio Box ─────────────────────────────────────────────── */
+.risk-reward-box {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.risk-reward-box::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}
+
+.risk-reward-box:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* ── Stock List Scrollbar ─────────────────────────────────────────────────── */
+.stock-list-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.stock-list-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.stock-list-scroll::-webkit-scrollbar-thumb {
+  background: rgba(84, 66, 219, 0.2);
+  border-radius: 4px;
+}
+.stock-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(84, 66, 219, 0.4);
+}
+.stock-list-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(84, 66, 219, 0.2) transparent;
+}
+

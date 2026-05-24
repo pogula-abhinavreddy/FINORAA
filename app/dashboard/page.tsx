@@ -1,16 +1,25 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Dashboard() {
   const router = useRouter();
+  const { user } = useAuth();
+
+  const firstName = user?.displayName?.split(" ")[0] || user?.email?.split("@")[0] || "there";
+
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 12 ? "Good Morning" :
+    hour < 17 ? "Good Afternoon" : "Good Evening";
 
   return (
     <div className="pt-10 px-sm md:px-lg lg:px-xl pb-32 md:pb-xl max-w-[1600px] w-full mx-auto">
       {/* Header Section */}
       <div className="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-sm">
         <div>
-          <h1 className="font-display text-display text-on-surface mb-base">Good Morning, Alex</h1>
+          <h1 className="font-display text-display text-on-surface mb-base">{greeting}, {firstName}</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant">Here is your financial intelligence briefing for today.</p>
         </div>
         <div className="flex gap-sm">

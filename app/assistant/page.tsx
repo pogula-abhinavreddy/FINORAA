@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface Message {
   id: number;
@@ -9,33 +10,12 @@ interface Message {
   isCard?: boolean;
 }
 
-const initialMessages: Message[] = [
-  {
-    id: 1,
-    sender: "bot",
-    text: "Hello Alex! I've been analyzing your spending patterns from last month. You managed to save <strong>₹450 more</strong> than usual. Would you like to see where this surplus came from or perhaps allocate it to your 'New Car' goal?",
-    time: "10:24 AM",
-  },
-  {
-    id: 2,
-    sender: "user",
-    text: "That's great! Show me the breakdown and then suggest a plan for the car goal.",
-    time: "10:25 AM",
-  },
-  {
-    id: 3,
-    sender: "bot",
-    text: "Excellent choice. Here's a quick summary of your efficiency gains:",
-    time: "10:26 AM",
-    isCard: true,
-  },
+const quickReplies = [
+  "How's my portfolio doing?",
+  "Compare car loans",
+  "Tax optimization tips",
+  "Best savings strategies",
 ];
-
-const quickReplies: Record<string, string> = {
-  "Compare car loans": "Great question! Here's a comparison of top car loan options:\n\n• **Bank of America**: 4.29% APR, 60 months\n• **Chase Auto**: 4.49% APR, 72 months\n• **Capital One**: 3.99% APR, 48 months\n\nBased on your credit score of 740, I'd recommend Capital One for the lowest rate. Want me to start a pre-approval?",
-  "Risk assessment": "Based on your current portfolio analysis:\n\n• **Risk Score**: 6.2/10 (Moderate)\n• **Volatility**: Medium — your Tesla holdings increase overall risk\n• **Diversification**: 8.2/10 — well spread across asset classes\n\n💡 **Recommendation**: Consider reducing TSLA exposure by 5% and reallocating to bonds for better stability.",
-  "Tax optimization": "Here are your top tax-saving opportunities:\n\n1. **401(k) Contribution**: You can still contribute ₹4,200 this year to max out\n2. **Tax-Loss Harvesting**: Your TSLA position is down — selling could offset ₹850 in gains\n3. **HSA Contributions**: You have ₹1,400 room remaining\n\nEstimated tax savings: **₹2,100–₹3,400**. Want me to create a detailed plan?",
-};
 
 const chatHistory = [
   { title: "Investment Strategy Q3", preview: "How should I rebalance my portfolio for...", time: "2h ago", active: false },
@@ -45,7 +25,17 @@ const chatHistory = [
 ];
 
 export default function FinancialAssistant() {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const { user, loading } = useAuth();
+  const userName = user?.displayName?.split(" ")[0] || user?.email?.split("@")[0] || "";
+
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 1,
+      sender: "bot",
+      text: "Hello! 👋 I'm Finora, your AI financial assistant powered by Gemini. I can help you with budgeting, investments, savings goals, tax tips, and more. What's on your mind today?",
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    },
+  ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -53,6 +43,8 @@ export default function FinancialAssistant() {
   const [showGoalModal, setShowGoalModal] = useState(false);
   const [goalName, setGoalName] = useState("");
   const [goalAmount, setGoalAmount] = useState("");
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [usingFallback, setUsingFallback] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -61,63 +53,88 @@ export default function FinancialAssistant() {
     setTimeout(() => setToast(null), 3000);
   }
 
-  function scrollToBottom() {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
+  // Update welcome message greeting once auth user loads
+  useEffect(() => {
+    if (!loading && user) {
+      const name = user.displayName?.split(" ")[0] || user.email?.split("@")[0] || "";
+      if (name) {
+        setMessages(prev =>
+          prev.map(m =>
+            m.id === 1
+              ? { ...m, text: `Hello, ${name}! 👋 I'm Finora, your AI financial assistant powered by Gemini. I can help you with budgeting, investments, savings goals, tax tips, and more. What's on your mind today?` }
+              : m
+          )
+        );
+      }
+    }
+  }, [loading, user]);
 
   useEffect(() => {
-    scrollToBottom();
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
   function getNow() {
     return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
 
-  function addBotReply(text: string) {
+  async function sendToGemini(userText: string, history: Message[]) {
     setIsTyping(true);
-    setTimeout(() => {
+    setApiError(null);
+    try {
+      const res = await fetch("/api/gemini", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userMessage: userText,
+          messages: history.slice(-10),
+        }),
+      });
+
+      // The new route always returns 200 (falls back locally on any error)
+      const data = await res.json();
+      setUsingFallback(!!data.usingFallback);
+
       setIsTyping(false);
       setMessages(prev => [
         ...prev,
-        { id: Date.now(), sender: "bot", text, time: getNow() },
+        { id: Date.now(), sender: "bot", text: data.text ?? "I'm not sure how to respond to that. Try asking about budgeting, investments, or tax tips!", time: getNow() },
       ]);
-    }, 1200);
+    } catch (err) {
+      // Network error (no server running, etc.)
+      setIsTyping(false);
+      setApiError("Network error");
+      setMessages(prev => [
+        ...prev,
+        {
+          id: Date.now(),
+          sender: "bot",
+          text: "I couldn't connect to the server right now. Please make sure the app is running and try again.",
+          time: getNow(),
+        },
+      ]);
+    }
   }
 
   function handleSend() {
     const trimmed = input.trim();
-    if (!trimmed) return;
+    if (!trimmed || isTyping) return;
 
-    setMessages(prev => [
-      ...prev,
-      { id: Date.now(), sender: "user", text: trimmed, time: getNow() },
-    ]);
+    const userMsg: Message = { id: Date.now(), sender: "user", text: trimmed, time: getNow() };
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInput("");
 
-    // Auto-resize textarea back
     if (textareaRef.current) textareaRef.current.style.height = "auto";
 
-    // Generate a smart reply
-    const lower = trimmed.toLowerCase();
-    if (lower.includes("budget") || lower.includes("spending")) {
-      addBotReply("Your current monthly budget utilization is at **60.5%** (₹3,749 of ₹6,200). Your top spending categories are Housing (₹1,600) and Dining (₹850). Would you like me to suggest optimizations?");
-    } else if (lower.includes("invest") || lower.includes("stock") || lower.includes("portfolio")) {
-      addBotReply("Your portfolio is up **+12.4%** this month, reaching ₹124,592. ETH is your best performer at +4.28%. Your diversification score is 8.2/10. Want a detailed breakdown?");
-    } else if (lower.includes("save") || lower.includes("saving") || lower.includes("goal")) {
-      addBotReply("Your Emergency Fund is at **95%** (₹19,000/₹20,000) — almost there! 🎉 Your Tesla Model 3 fund is at 72% (₹32,400/₹45,000). At your current saving rate, you'll reach the car goal in approximately 8 months.");
-    } else if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey")) {
-      addBotReply("Hey Alex! 👋 How can I help you today? I can assist with budgeting, investments, savings goals, or financial lessons.");
-    } else {
-      addBotReply("That's a great question! Based on your financial profile, I'd recommend reviewing your monthly savings rate and considering automated transfers to your goals. Would you like me to set that up, or would you prefer to explore a different topic?");
-    }
+    sendToGemini(trimmed, messages);
   }
 
   function handleQuickReply(label: string) {
-    setMessages(prev => [
-      ...prev,
-      { id: Date.now(), sender: "user", text: label, time: getNow() },
-    ]);
-    addBotReply(quickReplies[label]);
+    if (isTyping) return;
+    const userMsg: Message = { id: Date.now(), sender: "user", text: label, time: getNow() };
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
+    sendToGemini(label, messages);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -138,6 +155,15 @@ export default function FinancialAssistant() {
     setShowGoalModal(false);
   }
 
+  // Simple markdown-like formatter for bot responses
+  function formatBotText(text: string) {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      .replace(/`(.*?)`/g, "<code style='background:#f0f0f0;padding:1px 4px;border-radius:3px;font-family:monospace;font-size:0.9em'>$1</code>")
+      .replace(/\n/g, "<br/>");
+  }
+
   return (
     <>
       <div className="flex-1 p-10 flex gap-8 overflow-hidden">
@@ -146,14 +172,16 @@ export default function FinancialAssistant() {
           {/* Chat Header */}
           <div className="px-8 py-6 border-b border-outline-variant/30 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-[16px] bg-primary flex items-center justify-center shadow-[0_4px_20px_rgba(120,118,129,0.05)]">
-                <span className="material-symbols-outlined text-white" data-icon="smart_toy" style={{"fontVariationSettings": "'FILL' 1"}}>smart_toy</span>
+              <div className="w-12 h-12 rounded-[16px] bg-primary flex items-center justify-center shadow-[0_4px_20px_rgba(84,66,219,0.2)]">
+                <span className="material-symbols-outlined text-white" style={{"fontVariationSettings": "'FILL' 1"}}>smart_toy</span>
               </div>
               <div>
                 <h2 className="font-headline-md text-on-surface leading-tight">Finora Assistant</h2>
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                  <span className="text-label-sm text-outline">Online &amp; ready to advise</span>
+                  <span className={`w-2 h-2 rounded-full animate-pulse ${usingFallback ? "bg-amber-400" : "bg-primary"}`}></span>
+                  <span className="text-label-sm text-outline">
+                    {usingFallback ? "Smart Mode — add Gemini key for full AI" : "Powered by Gemini AI"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -163,17 +191,24 @@ export default function FinancialAssistant() {
                 className={`p-2 rounded-lg transition-colors ${showHistory ? "bg-primary/10 text-primary" : "hover:bg-surface-container text-outline hover:text-primary"}`}
                 title="Chat History"
               >
-                <span className="material-symbols-outlined" data-icon="history">history</span>
+                <span className="material-symbols-outlined">history</span>
               </button>
               <button
                 onClick={() => {
-                  setMessages(initialMessages);
+                  const name = user?.displayName?.split(" ")[0] || user?.email?.split("@")[0] || "";
+                  setMessages([{
+                    id: Date.now(),
+                    sender: "bot",
+                    text: `Hello${name ? `, ${name}` : ""}! 👋 I'm Finora, your AI financial assistant powered by Gemini. How can I help you today?`,
+                    time: getNow(),
+                  }]);
+                  setApiError(null);
                   showToastMsg("Chat cleared");
                 }}
                 className="p-2 rounded-lg hover:bg-surface-container text-outline hover:text-primary transition-colors"
                 title="Clear Chat"
               >
-                <span className="material-symbols-outlined" data-icon="more_vert">delete_sweep</span>
+                <span className="material-symbols-outlined">delete_sweep</span>
               </button>
             </div>
           </div>
@@ -194,32 +229,8 @@ export default function FinancialAssistant() {
                         ? "bg-surface-container text-on-surface rounded-[16px] rounded-tl-none border border-outline-variant/30"
                         : "bg-primary text-white rounded-[16px] rounded-tr-none shadow-[0_4px_20px_rgba(84,66,219,0.2)]"
                     }`}
-                    dangerouslySetInnerHTML={{ __html: msg.text }}
+                    dangerouslySetInnerHTML={{ __html: msg.sender === "bot" ? formatBotText(msg.text) : msg.text }}
                   />
-                  {msg.isCard && (
-                    <div className="bg-white border border-primary/20 rounded-[16px] p-5 shadow-sm space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-3 bg-primary/5 rounded-[12px]">
-                          <p className="text-[10px] uppercase text-primary font-bold tracking-tight">Groceries</p>
-                          <p className="font-headline-md text-on-surface">-₹120</p>
-                          <p className="text-[10px] text-primary flex items-center gap-1">
-                            <span className="material-symbols-outlined text-xs">arrow_downward</span> 15% vs Avg
-                          </p>
-                        </div>
-                        <div className="p-3 bg-primary/5 rounded-[12px]">
-                          <p className="text-[10px] uppercase text-primary font-bold tracking-tight">Subscription</p>
-                          <p className="font-headline-md text-on-surface">-₹85</p>
-                          <p className="text-[10px] text-primary flex items-center gap-1">
-                            <span className="material-symbols-outlined text-xs">check_circle</span> 2 Canceled
-                          </p>
-                        </div>
-                      </div>
-                      <div className="h-2 w-full bg-surface-container rounded-full overflow-hidden">
-                        <div className="h-full w-[72%] bg-primary rounded-full"></div>
-                      </div>
-                      <p className="text-label-sm text-outline italic">&quot;By moving this to your car goal, you&apos;ll reach your target 3 months earlier.&quot;</p>
-                    </div>
-                  )}
                   <span className="text-[10px] text-outline px-1">{msg.time}</span>
                 </div>
               </div>
@@ -231,10 +242,11 @@ export default function FinancialAssistant() {
                   <span className="material-symbols-outlined text-primary text-sm">smart_toy</span>
                 </div>
                 <div className="bg-surface-container p-4 rounded-[16px] rounded-tl-none border border-outline-variant/30">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-outline rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <div className="w-2 h-2 bg-outline rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <div className="w-2 h-2 bg-outline rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div className="flex gap-1 items-center">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span className="text-[11px] text-outline ml-2">Gemini is thinking...</span>
                   </div>
                 </div>
               </div>
@@ -249,12 +261,12 @@ export default function FinancialAssistant() {
                 onClick={() => showToastMsg("File attachment coming soon!")}
                 className="p-2 text-outline hover:text-primary transition-colors"
               >
-                <span className="material-symbols-outlined" data-icon="attach_file">attach_file</span>
+                <span className="material-symbols-outlined">attach_file</span>
               </button>
               <textarea
                 ref={textareaRef}
-                className="flex-1 border-none focus:ring-0 p-2 text-body-md resize-none placeholder-outline outline-none"
-                placeholder="Ask about your budget, savings, or investments..."
+                className="flex-1 border-none focus:ring-0 p-2 text-body-md resize-none placeholder-outline outline-none bg-transparent"
+                placeholder={userName ? `Ask ${userName} about budget, savings, or investments…` : "Ask about your budget, savings, or investments…"}
                 rows={1}
                 value={input}
                 onChange={e => {
@@ -263,23 +275,25 @@ export default function FinancialAssistant() {
                   e.target.style.height = e.target.scrollHeight + "px";
                 }}
                 onKeyDown={handleKeyDown}
+                disabled={isTyping}
               />
               <button
                 onClick={handleSend}
                 className={`w-10 h-10 rounded-[12px] flex items-center justify-center transition-colors shadow-[0_4px_20px_rgba(84,66,219,0.2)] active:scale-95 ${
-                  input.trim() ? "bg-primary text-white hover:opacity-90" : "bg-surface-container text-outline cursor-not-allowed shadow-none"
+                  input.trim() && !isTyping ? "bg-primary text-white hover:opacity-90" : "bg-surface-container text-outline cursor-not-allowed shadow-none"
                 }`}
-                disabled={!input.trim()}
+                disabled={!input.trim() || isTyping}
               >
-                <span className="material-symbols-outlined" data-icon="send">send</span>
+                <span className="material-symbols-outlined">send</span>
               </button>
             </div>
             <div className="mt-4 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-              {Object.keys(quickReplies).map(label => (
+              {quickReplies.map(label => (
                 <button
                   key={label}
                   onClick={() => handleQuickReply(label)}
-                  className="whitespace-nowrap px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary font-label-sm hover:bg-primary/10 transition-colors active:scale-95"
+                  disabled={isTyping}
+                  className="whitespace-nowrap px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary font-label-sm hover:bg-primary/10 transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {label}
                 </button>
@@ -326,7 +340,7 @@ export default function FinancialAssistant() {
               onClick={() => setShowGoalModal(true)}
               className="w-full py-4 border-2 border-dashed border-outline-variant rounded-[16px] text-outline font-label-md hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
             >
-              <span className="material-symbols-outlined" data-icon="add">add</span>
+              <span className="material-symbols-outlined">add</span>
               Create New Goal
             </button>
           </div>
@@ -357,7 +371,7 @@ export default function FinancialAssistant() {
           <div className="bg-primary rounded-[16px] p-6 text-on-primary relative overflow-hidden group shadow-[0_12px_32px_rgba(120,118,129,0.08)]">
             <div className="relative z-10">
               <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-4 backdrop-blur-sm">
-                <span className="material-symbols-outlined text-white" data-icon="lightbulb">lightbulb</span>
+                <span className="material-symbols-outlined text-white">lightbulb</span>
               </div>
               <h4 className="font-headline-md mb-2 text-white">Smart Tip</h4>
               <p className="text-body-md text-white/80 mb-4">Users with similar profiles saved 12% more by using Finora&apos;s automated Round-Ups.</p>

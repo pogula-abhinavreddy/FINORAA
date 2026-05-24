@@ -9,7 +9,6 @@ const navItems = [
   { href: '/learn', icon: 'school', label: 'Financial Literacy' },
   { href: '/assistant', icon: 'smart_toy', label: 'AI Assistant' },
   { href: '/statements', icon: 'receipt_long', label: 'Accounts & Transactions' },
-  { href: '/alerts', icon: 'notifications', label: 'Alerts' },
 ];
 
 export default function Sidebar() {
