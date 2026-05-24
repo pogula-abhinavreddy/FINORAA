@@ -32,7 +32,7 @@ export default function FinancialAssistant() {
     {
       id: 1,
       sender: "bot",
-      text: "Hello! 👋 I'm Finora, your AI financial assistant powered by Gemini. I can help you with budgeting, investments, savings goals, tax tips, and more. What's on your mind today?",
+      text: "Hello! 👋 I'm FINORAA, your AI financial assistant powered by Gemini. I can help you with budgeting, investments, savings goals, tax tips, and more. What's on your mind today?",
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -45,6 +45,7 @@ export default function FinancialAssistant() {
   const [goalAmount, setGoalAmount] = useState("");
   const [apiError, setApiError] = useState<string | null>(null);
   const [usingFallback, setUsingFallback] = useState(false);
+  const [activeModel, setActiveModel] = useState<string>("gemini-2.5-flash");
   const chatEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -61,7 +62,7 @@ export default function FinancialAssistant() {
         setMessages(prev =>
           prev.map(m =>
             m.id === 1
-              ? { ...m, text: `Hello, ${name}! 👋 I'm Finora, your AI financial assistant powered by Gemini. I can help you with budgeting, investments, savings goals, tax tips, and more. What's on your mind today?` }
+              ? { ...m, text: `Hello, ${name}! 👋 I'm FINORAA, your AI financial assistant powered by Gemini. I can help you with budgeting, investments, savings goals, tax tips, and more. What's on your mind today?` }
               : m
           )
         );
@@ -93,6 +94,7 @@ export default function FinancialAssistant() {
       // The new route always returns 200 (falls back locally on any error)
       const data = await res.json();
       setUsingFallback(!!data.usingFallback);
+      if (data.model && data.model !== "local") setActiveModel(data.model);
 
       setIsTyping(false);
       setMessages(prev => [
@@ -176,11 +178,13 @@ export default function FinancialAssistant() {
                 <span className="material-symbols-outlined text-white" style={{"fontVariationSettings": "'FILL' 1"}}>smart_toy</span>
               </div>
               <div>
-                <h2 className="font-headline-md text-on-surface leading-tight">Finora Assistant</h2>
+                <h2 className="font-headline-md text-on-surface leading-tight">FINORAA Assistant</h2>
                 <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full animate-pulse ${usingFallback ? "bg-amber-400" : "bg-primary"}`}></span>
+                  <span className={`w-2 h-2 rounded-full animate-pulse ${usingFallback ? "bg-amber-400" : "bg-emerald-500"}`}></span>
                   <span className="text-label-sm text-outline">
-                    {usingFallback ? "Smart Mode — add Gemini key for full AI" : "Powered by Gemini AI"}
+                    {usingFallback
+                      ? "Smart Mode (offline fallback)"
+                      : `Live AI · ${activeModel}`}
                   </span>
                 </div>
               </div>
@@ -199,7 +203,7 @@ export default function FinancialAssistant() {
                   setMessages([{
                     id: Date.now(),
                     sender: "bot",
-                    text: `Hello${name ? `, ${name}` : ""}! 👋 I'm Finora, your AI financial assistant powered by Gemini. How can I help you today?`,
+                    text: `Hello${name ? `, ${name}` : ""}! 👋 I'm FINORAA, your AI financial assistant powered by Gemini. How can I help you today?`,
                     time: getNow(),
                   }]);
                   setApiError(null);
@@ -374,7 +378,7 @@ export default function FinancialAssistant() {
                 <span className="material-symbols-outlined text-white">lightbulb</span>
               </div>
               <h4 className="font-headline-md mb-2 text-white">Smart Tip</h4>
-              <p className="text-body-md text-white/80 mb-4">Users with similar profiles saved 12% more by using Finora&apos;s automated Round-Ups.</p>
+              <p className="text-body-md text-white/80 mb-4">Users with similar profiles saved 12% more by using FINORAA&apos;s automated Round-Ups.</p>
               <button
                 onClick={() => showToastMsg("✅ Round-Ups enabled! Your spare change will now be invested automatically.")}
                 className="px-6 py-2 bg-white text-primary font-bold rounded-lg text-sm hover:scale-105 transition-transform active:scale-95 shadow-[0_4px_20px_rgba(120,118,129,0.05)]"

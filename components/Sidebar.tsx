@@ -18,7 +18,7 @@ export default function Sidebar() {
     <aside className="fixed left-0 top-0 h-full w-[280px] border-r border-outline-variant/30 flex flex-col py-8 px-4 z-40 shadow-[0_4px_20px_rgba(120,118,129,0.05)] backdrop-blur-md bg-white/70">
       <div className="mb-10 px-4">
         <Link href="/">
-          <h1 className="text-2xl font-bold text-on-surface tracking-tight font-display hover:text-primary transition-colors cursor-pointer">Finora</h1>
+          <h1 className="text-2xl font-bold text-on-surface tracking-tight font-display hover:text-primary transition-colors cursor-pointer">FINORAA</h1>
         </Link>
         <p className="text-outline font-label-sm uppercase tracking-widest mt-1">Financial Growth</p>
       </div>

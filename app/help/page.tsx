@@ -7,7 +7,7 @@ const faqData = [
   { q: "Is my financial data secure?", a: "Absolutely. We use bank-grade AES-256 encryption, two-factor authentication, and never share your data with third parties. Visit the Safety page to manage your security sessions." },
   { q: "How do I export my budget report?", a: "Go to the Budget page and click 'Export Report'. Alternatively, go to the Statements page to download monthly or quarterly PDFs of your transaction history." },
   { q: "Can I link my bank account?", a: "Yes! Go to Settings and look for 'Connected Accounts'. We support major banks through secure API connections. This allows for real-time tracking of your real-world expenses." },
-  { q: "What is Stealth Mode?", a: "Stealth Mode masks your account balances on all screens. This is useful if you're using Finora in public spaces and want to keep your net worth private. You can enable it in Safety settings." },
+  { q: "What is Stealth Mode?", a: "Stealth Mode masks your account balances on all screens. This is useful if you're using FINORAA in public spaces and want to keep your net worth private. You can enable it in Safety settings." },
 ];
 
 export default function HelpPage() {

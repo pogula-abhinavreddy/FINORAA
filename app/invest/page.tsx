@@ -721,7 +721,7 @@ export default function InvestOverview() {
               </div>
             </div>
             <div className="text-outline text-[12px] font-medium">
-              © 2024 Finora Financial Corp. All investments carry risk.
+              © 2024 FINORAA Financial Corp. All investments carry risk.
             </div>
           </div>
         </footer>
